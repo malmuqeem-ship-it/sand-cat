@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>صدق أم إشاعة – قط الرمال</title>
+<style>
+  :root{
+    --sand:#E8DCC3;
+    --leaf:#2F6F4F;
+    --tan:#D9C7A2;
+    --ink:#203228;
+    --ok:#2d9d62;
+    --no:#c85151;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: system-ui, "Segoe UI", Tahoma, Arial, "Noto Naskh Arabic", "Noto Kufi Arabic", sans-serif;
+    background: linear-gradient(180deg, #f9f6ee 0%, var(--sand) 100%);
+    color:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+  }
+  .card{
+    width:min(820px,100%);
+    background:#fff9f0;
+    border:1px solid #eadfcb;
+    border-radius:18px;
+    box-shadow:0 10px 24px rgba(0,0,0,.08);
+    overflow:hidden;
+  }
+  .head{
+    background: var(--leaf);
+    color:#fff;
+    padding:16px 20px;
+    display:flex; align-items:center; gap:12px; justify-content:space-between;
+  }
+  .head h1{font-size:20px; margin:0; font-weight:700}
+  .score{font-size:14px; opacity:.9}
+  .wrap{padding:20px}
+  .intro{
+    background:#fff; border:1px dashed var(--tan); border-radius:12px; padding:16px; margin-bottom:16px;
+  }
+  .animal-img{
+    width:100%; max-height:260px; object-fit:cover; border-radius:12px; display:none; margin-bottom:14px; border:1px solid #e6dfcf;
+  }
+  .qbox{
+    background:#fff; border:1px solid #e8dec9; border-radius:12px; padding:18px; margin:12px 0 16px;
+    font-size:20px; line-height:1.6; font-weight:700;
+  }
+  .btns{display:flex; gap:12px; flex-wrap:wrap}
+  button{
+    flex:1 1 180px;
+    border:0; border-radius:12px; padding:14px 16px; font-size:18px; font-weight:800; cursor:pointer;
+    transition:.15s transform ease, .15s opacity ease, .15s background ease;
+  }
+  .b-true{background:var(--ok); color:#fff}
+  .b-false{background:var(--no); color:#fff}
+  button:disabled{opacity:.6; cursor:not-allowed}
+  .feedback{
+    margin-top:14px; border-radius:12px; padding:14px; display:none; font-size:16px;
+    border:1px solid #e8dec9; background:#fff;
+  }
+  .tag{display:inline-block; font-weight:800; padding:.2em .6em; border-radius:.6em; margin-left:.5em; color:#fff}
+  .tag.ok{background:var(--ok)}
+  .tag.no{background:var(--no)}
+  .actions{margin-top:14px; display:flex; gap:10px; flex-wrap:wrap}
+  .ghost{
+    background:#fff; color:var(--leaf); border:2px solid var(--leaf);
+  }
+  .solid{
+    background:var(--leaf); color:#fff;
+  }
+  .end{
+    text-align:center; padding:30px 16px; display:none;
+  }
+  .end h2{margin:0 0 10px}
+  .small{font-size:13px; opacity:.8}
+  .muted{opacity:.8}
+  .foot{padding:10px 16px; font-size:12px; color:#4b6155; border-top:1px solid #e5dbc6; background:#fffef9}
+</style>
+</head>
+<body>
+  <main class="card" role="main">
+    <header class="head">
+      <h1>صدق أم إشاعة – قط الرمال</h1>
+      <div class="score" aria-live="polite">النتيجة: <b id="sc">0</b>/<span id="tot">0</span></div>
+    </header>
+
+    <section class="wrap">
+      <div class="intro" id="intro">
+        <b>طريقة اللعب:</b> أمامك عبارات عن <b>قط الرمال</b>. اختَر <em>صدق</em> أو <em>إشاعة</em>. بعد اختيارك ستظهر الإجابة مع شرح قصير. الأسئلة لا تتكرر ✨
+        <div class="small muted" style="margin-top:6px">تلميح: يمكنك إضافة صورة أعلى السؤال (انظري السطر المعلّق في الكود).</div>
+      </div>
+
+      <!-- اختياري: ضعي رابط صورة لقط الرمال هنا بين علامتي الاقتباس. اتركيه فارغًا لإخفاء الصورة. -->
+      <img id="animalImage" class="animal-img" alt="صورة قط الرمال">
+
+      <div class="qbox" id="q" aria-live="polite">اضغطي "ابدئي" لعرض أول عبارة…</div>
+      <div class="btns">
+        <button class="b-true" id="btnTrue" disabled>صدق</button>
+        <button class="b-false" id="btnFalse" disabled>إشاعة</button>
+      </div>
+      <div class="feedback" id="fb"></div>
+      <div class="actions">
+        <button class="ghost" id="startBtn">ابدئي ▶︎</button>
+        <button class="solid" id="nextBtn" disabled>التالي ↻</button>
+        <button class="ghost" id="resetBtn">إعادة ضبط ⟲</button>
+      </div>
+
+      <div class="end" id="end">
+        <h2>أحسنتِ! 🏆</h2>
+        <p>انتهت العبارات. نتيجتك: <b id="finalScore">0</b> من <b id="finalTotal">0</b>.</p>
+        <button class="solid" onclick="resetGame()">العبِي مجددًا</button>
+      </div>
+    </section>
+
+    <footer class="foot">
+      صُممت بألوان الطبيعة الهادئة — لدعم التعلّم المرح عن الحياة البرية 🌿
+    </footer>
+  </main>
+
+<script>
+/* ================= إعدادات قابلة للتعديل ================= */
+// اختياري: أضيفي رابط صورة واقعية لقط الرمال بين علامتي الاقتباس:
+const ANIMAL_IMAGE_URL = ""; // مثال: "https://example.com/sand-cat.jpg"
+
+// عبارات “صدق أم إشاعة” عن قط الرمال:
+const ITEMS = [
+  {
+    text: "قط الرمال يعيش طبيعيًا في الصحاري ذات الحرارة القاسية والرمال المتحركة.",
+    isTrue: true,
+    why: "موطنه الأصلي صحارى شمال أفريقيا وشبه الجزيرة العربية وآسيا الوسطى، وقد تكيف للعيش في بيئات قاحلة جدًا."
+  },
+  {
+    text: "أذناه صغيرتان لتقليل دخول الرمال.",
+    isTrue: false,
+    why: "في الواقع أذناه كبيرتان نسبيًا وتساعدان في التهوية وتحديد صوت الفريسة، ولهما حواف مكسوّة بشعيرات تمنع دخول الرمال."
+  },
+  {
+    text: "يمتلك فراءً كثيفًا أسفل القدمين يعمل كـ\"حذاء\" يحميه من حرارة الرمال.",
+    isTrue: true,
+    why: "وسائد القدم مغطاة بشعر كثيف يعزل الحرارة ويمنع انغراز القدم في الرمال الساخنة."
+  },
+  {
+    text: "لا يستطيع الحفر إطلاقًا، لذلك يعتمد على جحور الثعالب فقط.",
+    isTrue: false,
+    why: "يجيد الحفر سريعًا ليصنع جحورًا مؤقتة أو يوسّع جحور قوارض وثعالب قديمة."
+  },
+  {
+    text: "ينشط غالبًا ليلًا ويتخفّى نهارًا لتجنّب حرارة الشمس.",
+    isTrue: true,
+    why: "سلوك ليلي (Nocturnal) يساعده على الحفاظ على الماء والطاقة."
+  },
+  {
+    text: "صوته ضعيف جدًا ولا يمكنه المواء.",
+    isTrue: false,
+    why: "مواؤه مميز ويمكنه إطلاق نداءات طويلة شبيهة بالعواء خصوصًا في موسم التزاوج."
+  },
+  {
+    text: "يمكنه تحمّل فترات طويلة دون ماء من خلال الحصول على الرطوبة من الفريسة.",
+    isTrue: true,
+    why: "مثل العديد من آكلات اللحوم الصحراوية يعتمد على الماء الأيضي الموجود في الأنسجة الحيوانية."
+  },
+  {
+    text: "ذيله قصير جدًا مقارنة ببقية القطط البرية.",
+    isTrue: false,
+    why: "طوله متوسّط مع طرف أسود وحلقات داكنة، يساعد على التوازن والتواصل البصري."
+  }
+];
+
+/* ================ من هنا يبدأ الكود ================ */
+const qEl = document.getElementById('q');
+const fbEl = document.getElementById('fb');
+const scEl = document.getElementById('sc');
+const totEl = document.getElementById('tot');
+const btnT = document.getElementById('btnTrue');
+const btnF = document.getElementById('btnFalse');
+const startBtn = document.getElementById('startBtn');
+const nextBtn = document.getElementById('nextBtn');
+const resetBtn = document.getElementById('resetBtn');
+const endBox = document.getElementById('end');
+const imgEl = document.getElementById('animalImage');
+
+let pool = [];
+let used = new Set();
+let score = 0;
+let currentIdx = -1;
+
+// أصوات بسيطة باستخدام WebAudio (بدون ملفات)
+let audioCtx;
+function tone(freq = 880, dur = 0.12){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.25, audioCtx.currentTime + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + dur);
+  }catch(e){}
+}
+function sndCorrect(){ tone(920,0.12); setTimeout(()=>tone(1220,0.12),110); }
+function sndWrong(){ tone(220,0.15); }
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function init(){
+  pool = shuffle(ITEMS.map((x,i)=>i));
+  used.clear();
+  score = 0; currentIdx = -1;
+  scEl.textContent = '0';
+  totEl.textContent = ITEMS.length;
+  qEl.textContent = 'اضغطي "ابدئي" لعرض أول عبارة…';
+  fbEl.style.display='none'; fbEl.innerHTML='';
+  btnT.disabled = true; btnF.disabled = true;
+  nextBtn.disabled = true; endBox.style.display='none';
+  document.getElementById('intro').style.display='block';
+
+  // إظهار الصورة إن وُجد رابط
+  if(ANIMAL_IMAGE_URL && typeof ANIMAL_IMAGE_URL === 'string' && ANIMAL_IMAGE_URL.trim()){
+    imgEl.src = ANIMAL_IMAGE_URL.trim();
+    imgEl.style.display='block';
+  }else{
+    imgEl.style.display='none';
+  }
+}
+
+function start(){
+  document.getElementById('intro').style.display='none';
+  nextBtn.disabled = true;
+  showNext();
+}
+
+function showNext(){
+  if(used.size === pool.length){
+    qEl.textContent = 'لا مزيد من العبارات.';
+    btnT.disabled = true; btnF.disabled = true; nextBtn.disabled = true;
+    endBox.style.display='block';
+    document.getElementById('finalScore').textContent = score;
+    document.getElementById('finalTotal').textContent = ITEMS.length;
+    return;
+  }
+  fbEl.style.display='none'; fbEl.innerHTML='';
+  // اختر عنصر غير مستخدم
+  for(const idx of pool){
+    if(!used.has(idx)){ currentIdx = idx; break; }
+  }
+  const item = ITEMS[currentIdx];
+  qEl.textContent = item.text;
+  btnT.disabled = false; btnF.disabled = false;
+  nextBtn.disabled = true;
+}
+
+function answer(val){
+  const item = ITEMS[currentIdx];
+  const correct = (val === item.isTrue);
+  btnT.disabled = true; btnF.disabled = true;
+
+  const tag = correct ? '<span class="tag ok">صحيح</span>' : '<span class="tag no">خطأ</span>';
+  fbEl.innerHTML = `${tag} ${item.why}`;
+  fbEl.style.display='block';
+
+  if(correct){ score++; scEl.textContent = String(score); sndCorrect(); } else { sndWrong(); }
+  used.add(currentIdx);
+  nextBtn.disabled = false;
+}
+
+function resetGame(){
+  init();
+}
+
+btnT.addEventListener('click', ()=>answer(true));
+btnF.addEventListener('click', ()=>answer(false));
+startBtn.addEventListener('click', start);
+nextBtn.addEventListener('click', showNext);
+resetBtn.addEventListener('click', resetGame);
+
+init();
+</script>
+</body>
+</html>
+مبادرة صدق أم إشاعة عن الحيوانات
